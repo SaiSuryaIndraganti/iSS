@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>iSS - Digital Happiness Platform</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+       <style>
+        /* =========================================
+           THEME ENGINE & DESIGN SYSTEM
+           ========================================= */
+        :root {
+            --color-lavender: #E6E6FA;
+            --color-cherry-blossom: #FFB7C5;
+            --color-soft-violet: #D8BFD8;
+            --color-rose-pink: #FFD1DC;
+            --color-warm-white: #FAFAFA;
+            --color-light-cream: #FFFDD0;
+            --color-soft-gray: #F5F5F7;
+            --color-muted-plum: #DDA0DD;
+            --color-text-main: #333333;
+            --color-text-muted: #888888;
+            --color-accent-blue: #AEC6CF;
+            
+            --glass-bg: rgba(250, 250, 250, 0.85);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.6);
+            --shadow-floating: 0 10px 25px rgba(216, 191, 216, 0.2);
+            --shadow-subtle: 0 4px 12px rgba(0, 0, 0, 0.03);
+            
+            --component-bg: #FFFFFF;
+            --input-bg: rgba(255,255,255,0.8);
+            --pill-bg: rgba(255,255,255,0.6);
+            --skeleton-grad: linear-gradient(90deg, rgba(230, 230, 250, 0.5) 25%, rgba(255, 255, 255, 0.8) 50%, rgba(230, 230, 250, 0.5) 75%);
+            --ripple-color: rgba(216, 191, 216, 0.4);
+            --modal-overlay: rgba(0, 0, 0, 0.4);
+
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-xxl: 48px;
+
+            --border-radius-sm: 12px;
+            --border-radius-md: 20px;
+            --border-radius-lg: 32px;
+            
+            --transition-gentle: 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --transition-fast: 0.2s ease-in-out;
+        }
+              [data-theme="dark"] {
+            --color-warm-white: #121215; 
+            --color-text-main: #EAEAEA;
+            --color-text-muted: #8E8E93;
+            --color-soft-gray: #1C1C1E;
+            --color-muted-plum: #A3707A; 
+            --color-soft-violet: #4A3B4C;
+            
+            --glass-bg: rgba(20, 20, 23, 0.85);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.05);
+            --shadow-floating: 0 10px 25px rgba(0, 0, 0, 0.5);
+            --shadow-subtle: 0 4px 12px rgba(0, 0, 0, 0.3);
+            
+            --component-bg: #1C1C1E;
+            --input-bg: #2C2C2E;
+            --pill-bg: #2C2C2E;
+            --skeleton-grad: linear-gradient(90deg, rgba(40, 40, 45, 0.5) 25%, rgba(60, 60, 65, 0.8) 50%, rgba(40, 40, 45, 0.5) 75%);
+            --ripple-color: rgba(255, 255, 255, 0.1);
+            --modal-overlay: rgba(0, 0, 0, 0.7);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body { font-family: 'Nunito', sans-serif; background-color: var(--color-warm-white); color: var(--color-text-main); overflow: hidden; height: 100vh; width: 100vw; display: flex; flex-direction: column; line-height: 1.5; transition: background-color var(--transition-gentle), color var(--transition-gentle); }
+
+        #app-container { flex: 1; display: flex; flex-direction: column; height: 100%; position: relative; }
+        #screen-container { flex: 1; overflow-y: auto; overflow-x: hidden; padding-bottom: 100px; scroll-behavior: smooth; }
+
+        /* =========================================
+           MICRO-INTERACTIONS & ANIMATIONS
+           ========================================= */
+        .ripple { position: absolute; border-radius: 50%; transform: scale(0); animation: ripple-anim 0.6s linear; background-color: var(--ripple-color); pointer-events: none; }
+        @keyframes ripple-anim { to { transform: scale(4); opacity: 0; } }
+
+        .stagger-entrance { opacity: 0; animation: slideUpFade 0.5s var(--transition-gentle) forwards; }
+        @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .float-anim { animation: float 4s ease-in-out infinite; }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-12px); } 100% { transform: translateY(0px); } }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+            .stagger-entrance { opacity: 1; transform: none; }
+        }
+
+        /* =========================================
+           CORE COMPONENTS & DASHBOARD
+           ========================================= */
+        .text-title { font-size: 28px; font-weight: 700; color: var(--color-text-main); letter-spacing: -0.5px; transition: color var(--transition-gentle); }
+        .text-subtitle { font-size: 16px; font-weight: 400; color: var(--color-text-muted); transition: color var(--transition-gentle); }
+        .screen { padding: var(--spacing-xl) var(--spacing-lg); animation: fadeIn var(--transition-gentle); }
+        .header-section { margin-bottom: var(--spacing-xl); display: flex; justify-content: space-between; align-items: flex-start; }
+
+        .streak-badge { background: linear-gradient(135deg, var(--color-rose-pink), var(--color-cherry-blossom)); padding: 8px 16px; border-radius: var(--border-radius-lg); display: flex; align-items: center; gap: 6px; box-shadow: var(--shadow-subtle); color: #A05252; font-weight: 700; font-size: 14px; }
+        .streak-badge svg { width: 16px; height: 16px; fill: currentColor; }
+
+        .dashboard-card { background: var(--glass-bg); border: var(--glass-border); border-radius: var(--border-radius-md); padding: var(--spacing-lg); box-shadow: var(--shadow-floating); display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: background var(--transition-gentle), border var(--transition-gentle), box-shadow var(--transition-gentle); position: relative; overflow: hidden; }
+        .dashboard-stat { display: flex; flex-direction: column; align-items: flex-start; z-index: 1; }
+        .stat-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--color-text-muted); margin-bottom: var(--spacing-xs); }
+        .stat-value { font-size: 24px; font-weight: 700; color: var(--color-text-main); }
+        .stat-value.highlight { color: var(--color-muted-plum); }
+
+        .goal-card { background: var(--component-bg); border-radius: var(--border-radius-md); padding: var(--spacing-lg); box-shadow: var(--shadow-subtle); margin-bottom: var(--spacing-xl); transition: background var(--transition-gentle); position: relative; overflow: hidden; }
+        .goal-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; z-index: 1; position: relative; }
+        .goal-title { font-size: 16px; font-weight: 700; color: var(--color-text-main); }
+        .goal-subtitle { font-size: 12px; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        .goal-progress-bg { width: 100%; height: 12px; background: var(--color-soft-gray); border-radius: 12px; overflow: hidden; margin-bottom: 8px; transition: background var(--transition-gentle); position: relative; z-index: 1; }
+        .goal-progress-fill { height: 100%; background: linear-gradient(90deg, var(--color-cherry-blossom), var(--color-muted-plum)); border-radius: 12px; transition: width 1s cubic-bezier(0.25, 0.8, 0.25, 1); }
+        .goal-text-row { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; color: var(--color-text-muted); position: relative; z-index: 1; }
+
+        /* DAILY INTENTION UI */
+        .daily-intention-card { display: flex; align-items: center; justify-content: space-between; background: var(--component-bg); border-radius: var(--border-radius-sm); padding: 12px 16px; margin-bottom: var(--spacing-lg); box-shadow: var(--shadow-subtle); border-left: 4px solid var(--color-muted-plum); transition: opacity var(--transition-gentle); }
+        .daily-intention-card.completed { opacity: 0.6; border-left-color: var(--color-accent-blue); }
+        .intention-text { display: flex; flex-direction: column; }
+        .intention-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--color-muted-plum); font-weight: 700; }
+        .daily-intention-card.completed .intention-label { color: var(--color-accent-blue); }
+        .intention-task { font-size: 14px; font-weight: 600; color: var(--color-text-main); }
+        .intention-check { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--color-soft-violet); display: flex; align-items: center; justify-content: center; color: transparent; transition: all var(--transition-fast); }
+        .daily-intention-card.completed .intention-check { background: var(--color-accent-blue); border-color: var(--color-accent-blue); color: white; }
+        .intention-check svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+
+        .input-field { width: 100%; padding: var(--spacing-md); border: 1px solid rgba(128,128,128,0.1); border-radius: var(--border-radius-sm); font-family: 'Nunito', sans-serif; font-size: 16px; background: var(--input-bg); color: var(--color-text-main); outline: none; transition: all var(--transition-fast); margin-bottom: var(--spacing-md); position: relative; z-index: 2; }
+        .input-field:focus { border-color: var(--color-muted-plum); box-shadow: 0 4px 15px rgba(216, 191, 216, 0.2); }
+        
+        .btn-primary { position: relative; overflow: hidden; width: 100%; padding: var(--spacing-md); border: none; border-radius: var(--border-radius-sm); background: var(--color-muted-plum); color: white; font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: background var(--transition-fast), transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary:active { transform: scale(0.98); }
+        .btn-secondary { position: relative; overflow: hidden; width: 100%; padding: var(--spacing-md); border: 2px solid var(--color-soft-violet); border-radius: var(--border-radius-sm); background: transparent; color: var(--color-muted-plum); font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: background var(--transition-fast), transform 0.1s, border-color var(--transition-fast); display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-secondary:active { transform: scale(0.98); background: rgba(216, 191, 216, 0.05); }
+          /* SKELETON LOADING UI */
+        .skeleton { background: var(--skeleton-grad); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: var(--border-radius-sm); transition: background var(--transition-gentle); }
+        .skeleton-title { height: 32px; width: 60%; margin-bottom: 8px; }
+        .skeleton-text { height: 16px; width: 40%; }
+        .skeleton-card { height: 200px; border-radius: var(--border-radius-md); }
+
+        /* EXPLORE & MOOD BROWSING */
+        .search-container { position: relative; margin-bottom: var(--spacing-lg); z-index: 10; }
+        .search-container svg { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; stroke: var(--color-text-muted); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; z-index: 3; }
+        .search-input { width: 100%; padding: 16px 16px 16px 48px; border: none; border-radius: var(--border-radius-lg); background: var(--glass-bg); box-shadow: var(--shadow-subtle); font-family: 'Nunito', sans-serif; font-size: 16px; color: var(--color-text-main); outline: none; transition: box-shadow var(--transition-fast), background var(--transition-gentle); position: relative; z-index: 2; }
+        .search-input:focus { box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+        
+        .search-suggestions { position: absolute; top: 100%; left: 0; right: 0; background: var(--glass-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: var(--glass-border); border-top: none; border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); overflow: hidden; opacity: 0; transform: translateY(-10px); pointer-events: none; transition: opacity 0.2s, transform 0.2s; z-index: 1; }
+        .search-suggestions.active { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .suggestion-item { padding: 14px 20px; font-size: 14px; font-weight: 600; color: var(--color-text-main); display: flex; align-items: center; gap: 12px; cursor: pointer; transition: background var(--transition-fast); border-bottom: 1px solid rgba(128,128,128,0.05); }
+        .suggestion-item:last-child { border-bottom: none; }
+        .suggestion-item:active { background: rgba(216, 191, 216, 0.2); }
+        .suggestion-icon { font-size: 16px; opacity: 0.8; }
+
+        .filter-section-title { font-size: 14px; font-weight: 700; color: var(--color-text-main); margin-bottom: 12px; display: block; }
+        .category-scroll { display: flex; overflow-x: auto; gap: 12px; padding-bottom: 12px; margin-bottom: var(--spacing-md); scrollbar-width: none; }
+        .category-scroll::-webkit-scrollbar { display: none; }
+        
+        .category-pill { position: relative; overflow: hidden; padding: 8px 20px; background: var(--component-bg); border-radius: var(--border-radius-lg); font-size: 14px; font-weight: 600; color: var(--color-text-muted); white-space: nowrap; box-shadow: var(--shadow-subtle); cursor: pointer; transition: all var(--transition-fast); border: 1px solid transparent; }
+        .category-pill.active { background: var(--color-muted-plum); color: white; }
+        
+        .mood-pill { position: relative; overflow: hidden; padding: 8px 16px; background: var(--pill-bg); border-radius: var(--border-radius-sm); font-size: 14px; font-weight: 600; color: var(--color-text-main); white-space: nowrap; cursor: pointer; transition: all var(--transition-fast); border: 1px solid var(--color-soft-violet); display: flex; align-items: center; gap: 6px; }
+        .mood-pill.active { background: var(--color-soft-violet); color: #fff; border-color: var(--color-muted-plum); }
+
+        .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; padding-bottom: var(--spacing-xxl); }
+        .product-card { position: relative; overflow: hidden; background: var(--component-bg); border-radius: var(--border-radius-md); box-shadow: var(--shadow-subtle); display: flex; flex-direction: column; cursor: pointer; transition: transform var(--transition-fast), background var(--transition-gentle); }
+        .product-card:active { transform: scale(0.97); }
+        .product-image { width: 100%; aspect-ratio: 1; border-bottom: 1px solid rgba(128,128,128,0.05); display: flex; align-items: center; justify-content: center; color: white; font-size: 32px; }
+        .product-info { padding: 12px; display: flex; flex-direction: column; gap: 4px; pointer-events: none; }
+        .product-brand { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--color-text-muted); }
+        .product-name { font-size: 14px; font-weight: 700; color: var(--color-text-main); line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .product-price { font-size: 14px; font-weight: 700; color: var(--color-muted-plum); margin-top: 4px; }
+        .product-mrp { font-size: 12px; color: var(--color-text-muted); text-decoration: line-through; margin-left: 6px; font-weight: 400; }
+
+        /* PRODUCT DETAIL, CART & MODAL */
+        .top-app-bar { display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-md) var(--spacing-lg); margin-bottom: var(--spacing-md); }
+        .btn-icon { position: relative; overflow: hidden; width: 40px; height: 40px; border-radius: 50%; background: var(--component-bg); box-shadow: var(--shadow-subtle); display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; color: var(--color-text-main); transition: background var(--transition-gentle); }
+        .btn-icon:active { transform: scale(0.95); }
+        .btn-icon svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+        
+        .hero-image-container { width: 100%; aspect-ratio: 1; border-radius: var(--border-radius-lg); display: flex; align-items: center; justify-content: center; font-size: 80px; margin-bottom: var(--spacing-lg); box-shadow: var(--shadow-floating); }
+        .detail-brand { font-size: 14px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--color-muted-plum); font-weight: 700; margin-bottom: 4px; }
+        .detail-name { font-size: 28px; font-weight: 700; color: var(--color-text-main); line-height: 1.2; margin-bottom: 12px; }
+        .detail-price-row { display: flex; align-items: baseline; gap: 12px; margin-bottom: var(--spacing-lg); }
+        .detail-price { font-size: 24px; font-weight: 700; color: var(--color-text-main); }
+        .detail-mrp { font-size: 16px; color: var(--color-text-muted); text-decoration: line-through; }
+        .detail-description { font-size: 16px; color: var(--color-text-muted); line-height: 1.6; margin-bottom: var(--spacing-xl); }
+        .action-row { display: flex; flex-direction: column; gap: 12px; margin-bottom: var(--spacing-xl); }
+
+        .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: var(--spacing-xxl) 0; color: var(--color-text-muted); }
+        .empty-state svg { width: 64px; height: 64px; margin-bottom: var(--spacing-md); stroke: var(--color-soft-violet); stroke-width: 1; fill: none; }
+        .empty-state h3 { font-size: 20px; font-weight: 700; color: var(--color-text-main); margin-bottom: 8px; }
+        .empty-state p { font-size: 16px; margin-bottom: var(--spacing-lg); line-height: 1.5; }
+
+        .cart-item { display: flex; align-items: center; background: var(--component-bg); padding: 12px; border-radius: var(--border-radius-md); box-shadow: var(--shadow-subtle); margin-bottom: 12px; transition: background var(--transition-gentle); }
+        .cart-item-img { width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-right: 16px; }
+        .cart-item-details { flex: 1; display: flex; flex-direction: column; }
+        .cart-item-name { font-size: 14px; font-weight: 700; color: var(--color-text-main); }
+        .cart-item-price { font-size: 14px; color: var(--color-muted-plum); font-weight: 700; }
+        .cart-item-remove { position: relative; overflow: hidden; width: 32px; height: 32px; border-radius: 50%; background: var(--color-soft-gray); border: none; color: var(--color-text-muted); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background var(--transition-gentle); }
+        .cart-total-bar { margin-top: var(--spacing-lg); padding-top: var(--spacing-md); border-top: 1px solid rgba(128,128,128,0.1); display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); }
+        
+        .checkout-timeline { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0; }
+        .checkout-icon { font-size: 64px; margin-bottom: 24px; animation: bounceSoft 1s infinite alternate ease-in-out; }
+        .checkout-status { font-size: 24px; font-weight: 700; color: var(--color-muted-plum); margin-bottom: 8px; transition: opacity 0.3s; }
+        .checkout-subtext { font-size: 16px; color: var(--color-text-muted); text-align: center; }
+        .celebration-card { background: linear-gradient(135deg, var(--color-warm-white), var(--color-lavender)); border: 2px solid var(--color-soft-violet); padding: var(--spacing-lg); border-radius: var(--border-radius-lg); text-align: center; box-shadow: var(--shadow-floating); animation: scaleIn 0.5s var(--transition-gentle); }
+
+        .profile-hero { display: flex; align-items: center; margin-bottom: var(--spacing-xl); }
+        .profile-avatar { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--color-muted-plum), var(--color-cherry-blossom)); color: white; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; margin-right: 16px; box-shadow: var(--shadow-floating); text-transform: uppercase; }
+        .profile-info { flex: 1; }
+        .progress-container { width: 100%; background: var(--color-soft-gray); border-radius: 10px; height: 8px; margin-top: 8px; overflow: hidden; transition: background var(--transition-gentle); }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--color-accent-blue), var(--color-muted-plum)); border-radius: 10px; transition: width 0.5s ease; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: var(--spacing-xl); }
+        .stat-box { background: var(--component-bg); padding: 16px; border-radius: var(--border-radius-md); box-shadow: var(--shadow-subtle); display: flex; flex-direction: column; align-items: flex-start; transition: background var(--transition-gentle); }
+        .stat-box-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--color-soft-violet); color: #fff; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+        .stat-box-icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .stat-box-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--color-text-muted); margin-bottom: 4px; }
+        .stat-box-value { font-size: 20px; font-weight: 700; color: var(--color-text-main); }
+        .achievements-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: var(--spacing-xxl); }
+        .achievement-badge { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; transition: all var(--transition-gentle); }
+        .achievement-badge.locked { opacity: 0.4; filter: grayscale(1); }
+        .achievement-icon { width: 56px; height: 56px; border-radius: 50%; background: var(--component-bg); box-shadow: var(--shadow-subtle); display: flex; align-items: center; justify-content: center; font-size: 28px; border: 2px solid transparent; }
+        .achievement-badge:not(.locked) .achievement-icon { border-color: var(--color-cherry-blossom); background: linear-gradient(135deg, var(--color-warm-white), var(--color-rose-pink)); }
+        .achievement-title { font-size: 11px; font-weight: 700; color: var(--color-text-main); line-height: 1.2; }
+        .achievement-desc { font-size: 9px; color: var(--color-text-muted); line-height: 1.2; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay); z-index: 2000; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.3s; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-content { background: var(--component-bg); width: 100%; border-radius: 24px 24px 0 0; padding: 24px; padding-bottom: calc(24px + env(safe-area-inset-bottom, 15px)); transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), background var(--transition-gentle); max-height: 90vh; overflow-y: auto; }
+        .modal-overlay.active .modal-content { transform: translateY(0); }
+        .modal-handle { width: 40px; height: 4px; background: var(--color-text-muted); border-radius: 4px; margin: 0 auto 24px auto; opacity: 0.3; }
+         /* TOAST NOTIFICATIONS */
+        .toast-container { position: fixed; top: env(safe-area-inset-top, 20px); left: 50%; transform: translateX(-50%); z-index: 3000; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 400px; pointer-events: none; }
+        .toast { background: var(--glass-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: var(--glass-border); box-shadow: var(--shadow-floating); border-radius: var(--border-radius-md); padding: 16px; display: flex; align-items: center; gap: 12px; animation: slideDownFade 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); pointer-events: auto; }
+        .toast.hiding { animation: slideUpFadeOut 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards; }
+        .toast-icon { font-size: 24px; display: flex; align-items: center; justify-content: center; }
+        .toast-content { display: flex; flex-direction: column; }
+        .toast-title { font-size: 14px; font-weight: 700; color: var(--color-text-main); }
+        .toast-desc { font-size: 12px; color: var(--color-text-muted); }
+        
+        @keyframes slideDownFade { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUpFadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-20px); } }
+
+        /* BOTTOM NAVIGATION BAR */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 80px; background: var(--glass-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-top: var(--glass-border); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom, 15px); z-index: 1000; transition: background var(--transition-gentle), border-top var(--transition-gentle); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--color-text-muted); text-decoration: none; flex: 1; height: 100%; cursor: pointer; transition: color var(--transition-fast); position: relative; overflow: hidden; }
+        .nav-item svg { width: 22px; height: 22px; margin-bottom: 4px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform var(--transition-gentle); pointer-events: none; }
+        .nav-item span { font-size: 10px; font-weight: 600; letter-spacing: 0.5px; pointer-events: none; }
+        .nav-item.active { color: var(--color-muted-plum); }
+        .nav-item.active svg { transform: scale(1.15); }
+    </style>
+
+</head>
+<body>
+
+    <div id="app-container">
+        <main id="screen-container"></main>
+        
+        </div>
+
+              <script>
+        /* =========================================
+           iSS INTERNAL ARCHITECTURE
+           ========================================= */
+        const CONFIG = { version: '0.22.0', storageKey: 'iss_app_data' };
+
+        // --- APP STATE ---
+        let appState = {
+            profile: { name: "Wanderer", level: 1, xp: 0, moneySaved: 0, ordersCompleted: 0, goal: { name: "Dream Vacation", target: 100000 } },
+            streak: { current: 0, lastActiveDate: null },
+            preferences: { theme: 'light', sound: false },
+            wishlists: [], 
+            cart: [],
+            achievements: [],
+            dailyGoal: null,
+            customProducts: [] // NEW: Stores user-generated dreams locally
+        };
+
+        const StorageEngine = {
+            save: () => { try { localStorage.setItem(CONFIG.storageKey, JSON.stringify(appState)); } catch(e){} },
+            load: () => { 
+                try { 
+                    const d = localStorage.getItem(CONFIG.storageKey); 
+                    if(d) {
+                        const parsed = JSON.parse(d);
+                        appState = { ...appState, ...parsed, profile: { ...appState.profile, ...parsed.profile }, preferences: { ...appState.preferences, ...parsed.preferences } }; 
+                        if(parsed.profile && parsed.profile.goal) appState.profile.goal = parsed.profile.goal;
+                        if(!appState.achievements) appState.achievements = [];
+                        if(!appState.customProducts) appState.customProducts = [];
+                    }
+                } catch(e){} 
+            },
+            reset: () => { localStorage.removeItem(CONFIG.storageKey); location.reload(); }
+        };
+
+        const ThemeEngine = {
+            apply: (themeMode) => {
+                if (themeMode === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+                else document.documentElement.removeAttribute('data-theme');
+            },
+            toggle: () => {
+                appState.preferences.theme = appState.preferences.theme === 'light' ? 'dark' : 'light';
+                ThemeEngine.apply(appState.preferences.theme);
+                StorageEngine.save();
+                const themeBtn = document.getElementById('theme-toggle-btn');
+                if (themeBtn) themeBtn.innerText = appState.preferences.theme === 'light' ? 'Enable Dark Mode' : 'Enable Light Mode';
+            }
+        };
+
+        const NotificationEngine = {
+            container: null,
+            init: () => {
+                const c = document.createElement('div');
+                c.className = 'toast-container';
+                c.id = 'toast-container';
+                document.body.appendChild(c);
+                NotificationEngine.container = c;
+            },
+            show: (title, message, icon = "✨") => {
+                if (!NotificationEngine.container) NotificationEngine.init();
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.innerHTML = `<div class="toast-icon">${icon}</div><div class="toast-content"><span class="toast-title">${title}</span><span class="toast-desc">${message}</span></div>`;
+                NotificationEngine.container.appendChild(toast);
+                setTimeout(() => {
+                    toast.classList.add('hiding');
+                    setTimeout(() => toast.remove(), 400);
+                }, 3000);
+            }
+        };
+
+        const InteractionEngine = {
+            init: () => {
+                document.addEventListener('click', function(e) {
+                    const target = e.target.closest('.btn-primary, .btn-secondary, .btn-icon, .product-card, .category-pill, .mood-pill, .nav-item, .cart-item-remove, .dashboard-card, .goal-card, .suggestion-item');
+                    if (!target) return;
+                    const circle = document.createElement('span');
+                    const diameter = Math.max(target.clientWidth, target.clientHeight);
+                    const radius = diameter / 2;
+                    const rect = target.getBoundingClientRect();
+                    circle.style.width = circle.style.height = `${diameter}px`;
+                    circle.style.left = `${e.clientX - rect.left - radius}px`;
+                    circle.style.top = `${e.clientY - rect.top - radius}px`;
+                    circle.classList.add('ripple');
+                    const existingRipple = target.querySelector('.ripple');
+                    if (existingRipple) existingRipple.remove();
+                    target.appendChild(circle);
+                    setTimeout(() => { if (circle) circle.remove(); }, 600);
+                });
+            }
+        };
+
+        const GoalEngine = {
+            goals: [
+                { type: 'view_explore', text: 'Explore inspiration.' },
+                { type: 'save_dream', text: 'Add an item to your Dreams.' },
+                { type: 'checkout', text: 'Complete a virtual checkout.' },
+                { type: 'create_custom', text: 'Create a custom dream item.' }
+            ],
+            init: () => {
+                const today = new Date().toDateString();
+                if (!appState.dailyGoal || appState.dailyGoal.date !== today) {
+                    const randomGoal = GoalEngine.goals[Math.floor(Math.random() * GoalEngine.goals.length)];
+                    appState.dailyGoal = { ...randomGoal, completed: false, date: today };
+                    StorageEngine.save();
+                }
+            },
+            evaluate: (actionType) => {
+                if (appState.dailyGoal && !appState.dailyGoal.completed && appState.dailyGoal.type === actionType) {
+                    appState.dailyGoal.completed = true;
+                    appState.profile.xp += 50;
+                    GamificationEngine.checkLevelUp();
+                    StorageEngine.save();
+                    NotificationEngine.show("Intention Complete", "You earned 50 XP.", "🎯");
+                    if (ScreenManager.currentScreen === 'home') ScreenManager.navigate('home');
+                }
+            }
+        };
+
+        const AchievementsEngine = {
+            list: [
+                { id: "first_checkout", title: "First Step", desc: "Make your first mindful choice.", icon: "🛍️", condition: () => appState.profile.ordersCompleted >= 1 },
+                { id: "dreamer", title: "Dreamer", desc: "Curate your first item.", icon: "✨", condition: () => appState.wishlists.length >= 1 },
+                { id: "streak_3", title: "Consistent", desc: "Reach a 3 day streak.", icon: "🔥", condition: () => appState.streak.current >= 3 },
+                { id: "saver_10k", title: "10K Saved", desc: "Keep ₹10,000 in your pocket.", icon: "💰", condition: () => appState.profile.moneySaved >= 10000 },
+                { id: "collector", title: "Collector", desc: "Curate 5 items in Dreams.", icon: "🖼️", condition: () => appState.wishlists.length >= 5 },
+                { id: "creator", title: "Architect", desc: "Build a custom dream.", icon: "🎨", condition: () => appState.customProducts.length >= 1 }
+            ],
+            evaluate: () => {
+                let newlyUnlocked = false;
+                AchievementsEngine.list.forEach(ach => {
+                    if (!appState.achievements.includes(ach.id) && ach.condition()) {
+                        appState.achievements.push(ach.id);
+                        appState.profile.xp += 100;
+                        newlyUnlocked = true;
+                        NotificationEngine.show("Achievement Unlocked!", ach.title, ach.icon);
+                    }
+                });
+                if (newlyUnlocked) {
+                    GamificationEngine.checkLevelUp();
+                    StorageEngine.save();
+                }
+            }
+        };
+                        const GamificationEngine = {
+            processDailyVisit: () => {
+                const today = new Date(); today.setHours(0,0,0,0); const todayTime = today.getTime();
+                const last = appState.streak.lastActiveDate;
+                if (!last) { appState.streak.current = 1; appState.streak.lastActiveDate = todayTime; }
+                else {
+                    const diff = Math.floor((todayTime - last) / (1000 * 60 * 60 * 24));
+                    if (diff === 1) { appState.streak.current += 1; appState.streak.lastActiveDate = todayTime; }
+                    else if (diff > 1) { appState.streak.current = 1; appState.streak.lastActiveDate = todayTime; }
+                }
+                StorageEngine.save(); AchievementsEngine.evaluate(); 
+            },
+            addCuriosityXP: () => { appState.profile.xp += 10; GamificationEngine.checkLevelUp(); AchievementsEngine.evaluate(); },
+            completeVirtualCheckout: (totalAmount) => {
+                appState.profile.moneySaved += totalAmount; appState.profile.xp += 250; appState.profile.ordersCompleted += 1; appState.cart = []; 
+                GamificationEngine.checkLevelUp(); StorageEngine.save();
+                AchievementsEngine.evaluate(); GoalEngine.evaluate('checkout'); 
+            },
+            checkLevelUp: () => {
+                const newLevel = Math.floor(appState.profile.xp / 100) + 1;
+                if (newLevel > appState.profile.level) {
+                    appState.profile.level = newLevel;
+                    NotificationEngine.show("Level Up!", `You are now Level ${newLevel} Explorer.`, "⭐");
+                }
+                StorageEngine.save();
+            }
+        };
+
+        const CartEngine = {
+            addToCart: (productId) => { appState.cart.push(productId); StorageEngine.save(); NotificationEngine.show("Added to Cart", "Ready for virtual checkout.", "🛍️"); },
+            removeFromCart: (index) => { appState.cart.splice(index, 1); StorageEngine.save(); },
+            getCartTotal: () => { return appState.cart.reduce((total, id) => { const prod = Database.getProductById(id); return total + (prod ? prod.price : 0); }, 0); }
+        };
+
+        // --- PRODUCT DATABASE (MERGED WITH CUSTOM PRODUCTS) ---
+        const Database = {
+            categories: ["All", "Tech", "Photography", "Audio", "Gaming", "Lifestyle", "Stationery", "Custom"],
+            moods: [{ id: "All", label: "Any Mood", icon: "✨" }, { id: "Cozy", label: "Cozy", icon: "☕" }, { id: "Minimalist", label: "Minimalist", icon: "🌿" }, { id: "Dreamy", label: "Dreamy", icon: "🌌" }, { id: "Creative", label: "Creative", icon: "💡" }, { id: "Focus", label: "Focus", icon: "🎯" }],
+            inspirations: [
+                { query: "Desk setup", icon: "💻" }, { query: "Quiet morning", icon: "🌅" }, { query: "Deep work", icon: "🎧" }, { query: "Stargazing", icon: "🌌" }, { query: "Analog audio", icon: "📻" }, { query: "High performance", icon: "⚡" }, { query: "Mobile gaming", icon: "🎮" }
+            ],
+            // Hardcoded curations
+            products: [
+                { id: "p_101", brand: "OnePlus", name: "15 5G Flagship", category: "Tech", moods: ["Focus", "Minimalist"], price: 69999, mrp: 74999, gradient: "linear-gradient(135deg, #1C1C1E, #DDA0DD)", icon: "📱", description: "Incredible processing power meets smooth, uninterrupted software. The ultimate flagship experience for multitasking and mobile strategy." },
+                { id: "p_102", brand: "Apple", name: "MacBook Pro M3 Max", category: "Tech", moods: ["Focus", "Creative"], price: 319900, mrp: 319900, gradient: "linear-gradient(135deg, #AEC6CF, #F5F5F7)", icon: "💻", description: "Mind-bending performance. The absolute peak of portable computing for developers, architects, and creators." },
+                { id: "p_103", brand: "Oura", name: "Ring Gen 3 Heritage", category: "Tech", moods: ["Minimalist", "Focus"], price: 29999, mrp: 34999, gradient: "linear-gradient(135deg, #D8BFD8, #FFD1DC)", icon: "💍", description: "Advanced sleep and recovery tracking hidden inside a beautifully crafted, minimalist titanium ring." },
+                { id: "p_104", brand: "Whoop", name: "4.0 Activity Tracker", category: "Tech", moods: ["Focus", "Minimalist"], price: 23900, mrp: 23900, gradient: "linear-gradient(135deg, #1C1C1E, #AEC6CF)", icon: "⌚", description: "Continuous physiological data monitoring. Optimize your workouts, sleep, and daily recovery." },
+                { id: "p_105", brand: "Logitech", name: "MX Master 3S", category: "Tech", moods: ["Focus", "Creative"], price: 10995, mrp: 12495, gradient: "linear-gradient(135deg, #F5F5F7, #D8BFD8)", icon: "🖱️", description: "The ultimate productivity mouse. Ergonomic design, MagSpeed scrolling, and near-silent clicks." },
+                { id: "p_106", brand: "LG", name: "UltraFine 32\" 4K Monitor", category: "Tech", moods: ["Focus", "Minimalist"], price: 54999, mrp: 62000, gradient: "linear-gradient(135deg, #FFFDD0, #AEC6CF)", icon: "🖥️", description: "Immaculate color accuracy and resolution. The perfect centerpiece for a minimalist desk setup." },
+                { id: "p_201", brand: "Sky-Watcher", name: "NexStar 8SE Telescope", category: "Photography", moods: ["Dreamy", "Focus"], price: 124500, mrp: 135000, gradient: "linear-gradient(135deg, #1C1C1E, #AEC6CF)", icon: "🔭", description: "The iconic 'orange tube' telescope. Unparalleled optics for capturing deep-space objects and crisp lunar craters." },
+                { id: "p_202", brand: "Celestron", name: "Luminos 1.25\" Lunar Filter Kit", category: "Photography", moods: ["Dreamy", "Creative"], price: 5400, mrp: 6200, gradient: "linear-gradient(135deg, #FFD1DC, #D8BFD8)", icon: "🌑", description: "Enhance contrast and reduce glare during astrophotography sessions. Perfect for capturing the moon's surface." },
+                { id: "p_203", brand: "Fujifilm", name: "X100VI Digital Camera", category: "Photography", moods: ["Creative", "Minimalist"], price: 145000, mrp: 150000, gradient: "linear-gradient(135deg, #AEC6CF, #FFFDD0)", icon: "📷", description: "The ultimate everyday carry. Unmatched film simulations and a tactile, analog shooting experience." },
+                { id: "p_204", brand: "DJI", name: "Mini 4 Pro Drone", category: "Photography", moods: ["Creative", "Dreamy"], price: 82990, mrp: 89990, gradient: "linear-gradient(135deg, #DDA0DD, #E6E6FA)", icon: "🚁", description: "Capture breathtaking aerial perspectives. Omnidirectional obstacle sensing in a sub-250g package." },
+                { id: "p_205", brand: "Peak Design", name: "Everyday Backpack 20L", category: "Photography", moods: ["Minimalist", "Focus"], price: 28999, mrp: 31999, gradient: "linear-gradient(135deg, #F5F5F7, #D8BFD8)", icon: "🎒", description: "Award-winning organization and access. The perfect vessel for your camera gear and daily tech." },
+                { id: "p_301", brand: "Sony", name: "WH-1000XM5 Wireless", category: "Audio", moods: ["Focus", "Minimalist"], price: 29990, mrp: 34990, gradient: "linear-gradient(135deg, #E6E6FA, #FFFDD0)", icon: "🎧", description: "Industry-leading noise cancellation. Block out the noise and drop into deep, focused workflows." },
+                { id: "p_302", brand: "Apple", name: "AirPods Max", category: "Audio", moods: ["Minimalist", "Creative"], price: 59900, mrp: 59900, gradient: "linear-gradient(135deg, #FFB7C5, #E6E6FA)", icon: "🎧", description: "High-fidelity audio meets unparalleled design. The ultimate spatial audio experience." },
+                { id: "p_303", brand: "Shure", name: "SM7B Vocal Microphone", category: "Audio", moods: ["Creative", "Focus"], price: 38999, mrp: 42000, gradient: "linear-gradient(135deg, #1C1C1E, #DDA0DD)", icon: "🎙️", description: "The legendary broadcast microphone. Perfect for podcasting, streaming, and pristine vocal clarity." },
+                { id: "p_304", brand: "KEF", name: "LS50 Wireless II Speakers", category: "Audio", moods: ["Cozy", "Dreamy"], price: 249000, mrp: 275000, gradient: "linear-gradient(135deg, #D8BFD8, #FFD1DC)", icon: "🔊", description: "Audiophile-grade wireless HiFi. Transform your living space with breathtaking, room-filling sound." },
+                { id: "p_305", brand: "Audio-Technica", name: "LP120X Turntable", category: "Audio", moods: ["Cozy", "Creative"], price: 34999, mrp: 39999, gradient: "linear-gradient(135deg, #F5F5F7, #AEC6CF)", icon: "📻", description: "Direct-drive analog bliss. The perfect centerpiece for a cozy, late-night vinyl listening session." },
+                { id: "p_401", brand: "Sony", name: "PlayStation 5 Disc Edition", category: "Gaming", moods: ["Focus", "Dreamy"], price: 54990, mrp: 54990, gradient: "linear-gradient(135deg, #FFFDD0, #AEC6CF)", icon: "🎮", description: "Lightning-fast loading and immersive haptic feedback. The pinnacle of modern console gaming." },
+                { id: "p_402", brand: "Backbone", name: "One Mobile Controller", category: "Gaming", moods: ["Focus", "Creative"], price: 10999, mrp: 12999, gradient: "linear-gradient(135deg, #1C1C1E, #E6E6FA)", icon: "🕹️", description: "Transform your phone into the ultimate gaming console. Perfect for competitive mobile strategy and sports." },
+                { id: "p_403", brand: "EA Sports", name: "FC 24 Ultimate Edition", category: "Gaming", moods: ["Focus", "Cozy"], price: 4499, mrp: 5499, gradient: "linear-gradient(135deg, #AEC6CF, #FFD1DC)", icon: "⚽", description: "The world's game. Build your ultimate squad and dominate the pitch with hyper-realistic gameplay." },
+                { id: "p_404", brand: "Secretlab", name: "Titan Evo Gaming Chair", category: "Gaming", moods: ["Focus", "Minimalist"], price: 45999, mrp: 52000, gradient: "linear-gradient(135deg, #F5F5F7, #DDA0DD)", icon: "💺", description: "Ergonomic perfection. Designed to support your posture during the longest, most intense gaming sessions." },
+                { id: "p_405", brand: "Razer", name: "Wolverine V3 Pro", category: "Gaming", moods: ["Focus", "Creative"], price: 19999, mrp: 22000, gradient: "linear-gradient(135deg, #D8BFD8, #AEC6CF)", icon: "🎮", description: "Tournament-grade wireless controller. Hyper-tactile switches for the ultimate competitive edge." },
+                { id: "p_501", brand: "Vitamix", name: "A3500 Ascent Blender", category: "Lifestyle", moods: ["Minimalist", "Focus"], price: 72000, mrp: 78000, gradient: "linear-gradient(135deg, #FFFDD0, #FFB7C5)", icon: "🥤", description: "The ultimate tool for plant-based nutrition. Effortlessly blend smoothies, hot soups, and natural nut butters." },
+                { id: "p_502", brand: "PUMA", name: "Man City 23/24 Authentic Home Jersey", category: "Lifestyle", moods: ["Creative", "Dreamy"], price: 4999, mrp: 5499, gradient: "linear-gradient(135deg, #AEC6CF, #E6E6FA)", icon: "👕", description: "Sky blue perfection. Wear the authentic colors of the Premier League champions." },
+                { id: "p_503", brand: "Fellow", name: "Stagg EKG Electric Kettle", category: "Lifestyle", moods: ["Cozy", "Minimalist"], price: 16500, mrp: 18900, gradient: "linear-gradient(135deg, #1C1C1E, #F5F5F7)", icon: "🫖", description: "Precision pour-over dynamics. Elevate your morning coffee or matcha ritual to an art form." },
+                { id: "p_504", brand: "Herman Miller", name: "Aeron Office Chair", category: "Lifestyle", moods: ["Focus", "Minimalist"], price: 125000, mrp: 140000, gradient: "linear-gradient(135deg, #F5F5F7, #AEC6CF)", icon: "🪑", description: "The gold standard of office ergonomics. Perfect support for long days of deep work." },
+                { id: "p_505", brand: "Eight Sleep", name: "Pod 4 Cover", category: "Lifestyle", moods: ["Dreamy", "Focus"], price: 185000, mrp: 199000, gradient: "linear-gradient(135deg, #D8BFD8, #FFD1DC)", icon: "🛏️", description: "Intelligent temperature regulation for your bed. Maximize your deep sleep and daily recovery." },
+                { id: "p_601", brand: "Lamy", name: "2000 Fountain Pen", category: "Stationery", moods: ["Creative", "Minimalist"], price: 18500, mrp: 21000, gradient: "linear-gradient(135deg, #1C1C1E, #DDA0DD)", icon: "🖋️", description: "A masterpiece of Bauhaus design. Crafted from Makrolon and brushed stainless steel with a 14k gold nib." },
+                { id: "p_602", brand: "Moleskine", name: "Classic Hardcover Notebook", category: "Stationery", moods: ["Cozy", "Creative"], price: 1850, mrp: 2200, gradient: "linear-gradient(135deg, #FFFDD0, #AEC6CF)", icon: "📔", description: "The legendary notebook. The perfect blank canvas for your sketches, journaling, and daily intentions." },
+                { id: "p_603", brand: "Rotring", name: "800 Mechanical Pencil", category: "Stationery", moods: ["Focus", "Minimalist"], price: 4200, mrp: 4800, gradient: "linear-gradient(135deg, #FFB7C5, #E6E6FA)", icon: "✏️", description: "Full metal body with a retractable mechanism. The ultimate precision tool for drafting and drawing." },
+                { id: "p_604", brand: "Midori", name: "MD Leather Notebook Cover", category: "Stationery", moods: ["Cozy", "Minimalist"], price: 6500, mrp: 7200, gradient: "linear-gradient(135deg, #D8BFD8, #FFD1DC)", icon: "📖", description: "Premium goat leather that ages beautifully over time. Protect your daily thoughts in elegance." },
+                { id: "p_605", brand: "Hobonichi", name: "Techo Cousin 2024", category: "Stationery", moods: ["Focus", "Creative"], price: 5400, mrp: 6000, gradient: "linear-gradient(135deg, #E6E6FA, #FFFDD0)", icon: "📅", description: "The beloved Japanese daily planner. Map out your life, track your goals, and journal your memories." }
+            ],
+            // NEW: Combines hardcoded products with user-generated custom dreams
+            getAllProducts: () => {
+                return [...Database.products, ...appState.customProducts];
+            },
+            getProductById: (id) => Database.getAllProducts().find(p => p.id === id)
+        };
+        const Components = {
+            buildBottomNav: () => {
+                const nav = document.createElement('nav'); nav.className = 'bottom-nav'; nav.id = 'main-nav';
+                const tabs = [
+                    { id: 'home', label: 'Home', icon: '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline>' },
+                    { id: 'search', label: 'Explore', icon: '<circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>' },
+                    { id: 'cart', label: 'Cart', icon: '<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path>' },
+                    { id: 'collections', label: 'Dreams', icon: '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>' },
+                    { id: 'profile', label: 'Profile', icon: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle>' }
+                ];
+                tabs.forEach(tab => {
+                    const btn = document.createElement('a'); btn.className = 'nav-item'; btn.id = `nav-${tab.id}`;
+                    btn.onclick = () => ScreenManager.navigate(tab.id);
+                    btn.innerHTML = `<svg viewBox="0 0 24 24">${tab.icon}</svg><span>${tab.label}</span>`;
+                    nav.appendChild(btn);
+                });
+                return nav;
+            },
+            
+            buildProductCard: (product, index = 0) => {
+                const card = document.createElement('div'); card.className = 'product-card stagger-entrance'; card.style.animationDelay = `${(index % 10) * 0.08}s`;
+                card.onclick = () => ScreenManager.navigate('product', product.id);
+                const fmtPrice = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(product.price);
+                const fmtMrp = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(product.mrp);
+                card.innerHTML = `<div class="product-image" style="background: ${product.gradient};">${product.icon}</div><div class="product-info"><span class="product-brand">${product.brand}</span><span class="product-name">${product.name}</span><div style="display: flex; align-items: baseline;"><span class="product-price">${fmtPrice}</span><span class="product-mrp">${fmtMrp}</span></div></div>`;
+                return card;
+            },
+
+            buildSkeletonScreen: (type) => {
+                const screen = document.createElement('div'); screen.className = 'screen';
+                if (type === 'home' || type === 'profile') {
+                    screen.innerHTML = `<div class="header-section" style="display:block;"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text"></div></div><div class="dashboard-card skeleton" style="height: 120px;"></div><div class="goal-card skeleton" style="height: 140px;"></div>`;
+                } else if (type === 'search' || type === 'collections') {
+                    screen.innerHTML = `<div class="header-section" style="display:block;"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text"></div></div><div style="display:flex; gap:12px; margin-bottom: 24px;"><div class="skeleton" style="height:36px; width:80px; border-radius: 20px;"></div><div class="skeleton" style="height:36px; width:100px; border-radius: 20px;"></div></div><div class="product-grid"><div class="skeleton skeleton-card"></div><div class="skeleton skeleton-card"></div><div class="skeleton skeleton-card"></div><div class="skeleton skeleton-card"></div></div>`;
+                } else if (type === 'product' || type === 'create_dream') {
+                    screen.innerHTML = `<div class="skeleton skeleton-card" style="height: 350px; margin-bottom: 24px;"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text" style="width: 80%;"></div><div class="skeleton skeleton-text" style="width: 60%;"></div>`;
+                } else {
+                    screen.innerHTML = `<div class="skeleton skeleton-card" style="height: 200px;"></div>`;
+                }
+                return screen;
+            },
+
+            buildSettingsModal: () => {
+                const overlay = document.createElement('div'); overlay.className = 'modal-overlay';
+                const currentGoalName = appState.profile.goal ? appState.profile.goal.name : "Dream Vacation";
+                const currentGoalTarget = appState.profile.goal ? appState.profile.goal.target : 100000;
+                const themeBtnText = appState.preferences.theme === 'light' ? 'Enable Dark Mode' : 'Enable Light Mode';
+                overlay.innerHTML = `
+                    <div class="modal-content" onclick="event.stopPropagation()">
+                        <div class="modal-handle"></div><h2 class="text-title" style="font-size: 20px; margin-bottom: 24px;">Settings</h2>
+                        <label style="font-size: 12px; color: var(--color-text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">Your Name</label><input type="text" id="profile-name-input" class="input-field" value="${appState.profile.name}" placeholder="Your Name" autocomplete="off">
+                        <label style="font-size: 12px; color: var(--color-text-muted); margin-bottom: 8px; margin-top: 8px; text-transform: uppercase; letter-spacing: 1px;">Dream Fund Name</label><input type="text" id="goal-name-input" class="input-field" value="${currentGoalName}" placeholder="e.g. Kyoto Vacation" autocomplete="off">
+                        <label style="font-size: 12px; color: var(--color-text-muted); margin-bottom: 8px; margin-top: 8px; text-transform: uppercase; letter-spacing: 1px;">Target Amount (₹)</label><input type="number" id="goal-target-input" class="input-field" value="${currentGoalTarget}" placeholder="100000" autocomplete="off">
+                        <button id="save-profile-btn" class="btn-primary" style="margin-top: 8px; margin-bottom: 24px;">Save Changes</button>
+                        <label style="font-size: 12px; color: var(--color-text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">Appearance</label><button id="theme-toggle-btn" class="btn-secondary" style="margin-bottom: 24px;">${themeBtnText}</button>
+                        <button id="reset-dev-btn" style="padding: 12px 24px; border-radius: var(--border-radius-sm); border: 1px solid var(--color-rose-pink); background: transparent; color: var(--color-rose-pink); font-weight: 600; cursor: pointer; width: 100%;">Reset App Data</button>
+                    </div>
+                `;
+                overlay.onclick = () => { overlay.classList.remove('active'); setTimeout(() => overlay.remove(), 400); };
+                const saveBtn = overlay.querySelector('#save-profile-btn');
+                saveBtn.onclick = () => {
+                    appState.profile.name = overlay.querySelector('#profile-name-input').value.trim() || appState.profile.name;
+                    appState.profile.goal = { name: overlay.querySelector('#goal-name-input').value.trim() || "Dream Vacation", target: parseInt(overlay.querySelector('#goal-target-input').value) || 100000 };
+                    StorageEngine.save(); NotificationEngine.show("Settings Saved", "Your preferences have been updated.", "⚙️");
+                    saveBtn.innerText = "Saved!"; saveBtn.style.background = "var(--color-accent-blue)";
+                    setTimeout(() => { overlay.classList.remove('active'); setTimeout(() => { overlay.remove(); ScreenManager.navigate('profile'); }, 400); }, 800);
+                };
+                overlay.querySelector('#theme-toggle-btn').onclick = () => ThemeEngine.toggle();
+                overlay.querySelector('#reset-dev-btn').onclick = () => StorageEngine.reset();
+                document.body.appendChild(overlay); requestAnimationFrame(() => overlay.classList.add('active'));
+            }
+        };
+        // --- RENDER ENGINE & NAVIGATION ---
+        const ScreenManager = {
+            container: document.getElementById('screen-container'),
+            currentScreen: null,
+            isNavigating: false,
+            navigate: (screenName, data = null) => {
+                if (ScreenManager.currentScreen === screenName && !data) return; 
+                if (ScreenManager.isNavigating) return;
+                
+                ScreenManager.isNavigating = true; 
+                ScreenManager.container.innerHTML = ''; window.scrollTo(0, 0); 
+                
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                let activeNavId = screenName;
+                if (screenName === 'product') activeNavId = 'search'; 
+                if (screenName === 'checkout') activeNavId = 'cart';
+                if (screenName === 'create_dream') activeNavId = 'collections'; // Keep dreams tab highlighted
+                const btn = document.getElementById(`nav-${activeNavId}`); if (btn) btn.classList.add('active');
+                
+                ScreenManager.container.appendChild(Components.buildSkeletonScreen(screenName));
+                
+                setTimeout(() => {
+                    ScreenManager.container.innerHTML = '';
+                    switch (screenName) {
+                        case 'home': ScreenManager.container.appendChild(Screens.buildHome()); break;
+                        case 'search': ScreenManager.container.appendChild(Screens.buildSearch()); GoalEngine.evaluate('view_explore'); break;
+                        case 'cart': ScreenManager.container.appendChild(Screens.buildCart()); break;
+                        case 'collections': ScreenManager.container.appendChild(Screens.buildCollections()); break;
+                        case 'profile': ScreenManager.container.appendChild(Screens.buildProfile()); break;
+                        case 'product': ScreenManager.container.appendChild(Screens.buildProductDetail(data)); break;
+                        case 'checkout': ScreenManager.container.appendChild(Screens.buildCheckout()); break;
+                        case 'create_dream': ScreenManager.container.appendChild(Screens.buildCreateDream()); break; // NEW
+                    }
+                    ScreenManager.currentScreen = screenName; ScreenManager.isNavigating = false;
+                }, 250);
+            }
+        };
+        // --- SCREENS ---
+        const Screens = {
+            buildHome: () => {
+                const screen = document.createElement('div'); screen.className = 'screen';
+                const moneySaved = appState.profile.moneySaved;
+                const fmtSavings = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(moneySaved);
+                const fireIcon = `<svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>`;
+                const goalTarget = appState.profile.goal ? appState.profile.goal.target : 100000;
+                const goalName = appState.profile.goal ? appState.profile.goal.name : "Dream Vacation";
+                const goalProgressPct = Math.min(100, Math.max(0, (moneySaved / goalTarget) * 100));
+                const fmtTarget = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(goalTarget);
+                const intention = appState.dailyGoal;
+                const isCompleted = intention && intention.completed;
+                const checkHTML = isCompleted ? `<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>` : `<svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path></svg>`;
+
+                screen.innerHTML = `
+                    <div class="header-section">
+                        <div><h2 class="text-title">Welcome back,</h2><h2 class="text-title" style="color: var(--color-muted-plum);">${appState.profile.name}</h2><p class="text-subtitle" style="margin-top: 8px;">A quiet moment to explore and dream.</p></div>
+                        <div class="streak-badge">${fireIcon} ${appState.streak.current} Day</div>
+                    </div>
+                    <div class="daily-intention-card ${isCompleted ? 'completed' : ''}"><div class="intention-text"><span class="intention-label">Daily Intention</span><span class="intention-task">${intention ? intention.text : 'Find inspiration today.'}</span></div><div class="intention-check">${checkHTML}</div></div>
+                    <div class="dashboard-card"><div class="dashboard-stat"><span class="stat-label">Saved</span><span class="stat-value highlight">${fmtSavings}</span></div><div class="dashboard-stat" style="align-items: flex-end;"><span class="stat-label">Level ${appState.profile.level}</span><span class="stat-value" style="font-size: 18px;">${appState.profile.xp} XP</span></div></div>
+                    <div class="goal-card"><div class="goal-header"><span class="goal-title">${goalName}</span><span class="goal-subtitle">Dream Fund</span></div><div class="goal-progress-bg"><div class="goal-progress-fill" style="width: ${goalProgressPct}%;"></div></div><div class="goal-text-row"><span>${fmtSavings}</span><span>${fmtTarget}</span></div></div>
+                `;
+                return screen;
+            },
+            
+            buildSearch: () => {
+                const screen = document.createElement('div'); screen.className = 'screen';
+                let currentCategory = "All"; let currentMood = "All"; let currentSearchQuery = "";
+                
+                screen.innerHTML = `
+                    <div class="header-section" style="margin-bottom: 16px;"><div><h2 class="text-title">Explore</h2><p class="text-subtitle" style="margin-top: 4px;">Discover inspiration.</p></div></div>
+                    <div class="search-container">
+                        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <input type="text" id="main-search-input" class="search-input" placeholder="Search for dreams..." autocomplete="off">
+                        <div id="search-suggestions" class="search-suggestions"></div>
+                    </div>
+                    <span class="filter-section-title">How are you feeling?</span><div class="category-scroll" id="mood-scroll"></div>
+                    <span class="filter-section-title">Categories</span><div class="category-scroll" id="cat-scroll"></div>
+                    <div class="product-grid" id="explore-grid"></div>
+                `;
+                
+                const moodScroll = screen.querySelector('#mood-scroll'); const catScroll = screen.querySelector('#cat-scroll'); const grid = screen.querySelector('#explore-grid'); const searchInput = screen.querySelector('#main-search-input'); const suggBox = screen.querySelector('#search-suggestions');
+
+                searchInput.addEventListener('focus', () => {
+                    suggBox.innerHTML = '';
+                    Database.inspirations.forEach(insp => {
+                        const item = document.createElement('div'); item.className = 'suggestion-item';
+                        item.innerHTML = `<span class="suggestion-icon">${insp.icon}</span> ${insp.query}`;
+                        item.onclick = () => { searchInput.value = insp.query; currentSearchQuery = insp.query.toLowerCase(); suggBox.classList.remove('active'); updateFiltersUI(); };
+                        suggBox.appendChild(item);
+                    });
+                    suggBox.classList.add('active');
+                });
+                searchInput.addEventListener('blur', () => setTimeout(() => suggBox.classList.remove('active'), 200));
+                searchInput.oninput = (e) => { currentSearchQuery = e.target.value.toLowerCase().trim(); if(currentSearchQuery) suggBox.classList.remove('active'); updateFiltersUI(); };
+                
+                const updateFiltersUI = () => {
+                    moodScroll.innerHTML = '';
+                    Database.moods.forEach(mood => {
+                        const pill = document.createElement('div'); pill.className = `mood-pill ${currentMood === mood.id ? 'active' : ''}`; pill.innerHTML = `<span>${mood.icon}</span> ${mood.label}`;
+                        pill.onclick = () => { currentMood = mood.id; updateFiltersUI(); }; moodScroll.appendChild(pill);
+                    });
+                    catScroll.innerHTML = '';
+                    Database.categories.forEach(cat => {
+                        const pill = document.createElement('div'); pill.className = `category-pill ${currentCategory === cat ? 'active' : ''}`; pill.innerText = cat;
+                        pill.onclick = () => { currentCategory = cat; updateFiltersUI(); }; catScroll.appendChild(pill);
+                    });
+                    
+                    grid.innerHTML = ''; 
+                    let filtered = Database.getAllProducts(); // NEW: Searches custom products too!
+                    
+                    if (currentSearchQuery) filtered = filtered.filter(p => p.name.toLowerCase().includes(currentSearchQuery) || p.brand.toLowerCase().includes(currentSearchQuery) || p.description.toLowerCase().includes(currentSearchQuery) || p.category.toLowerCase().includes(currentSearchQuery));
+                    if (currentCategory !== "All") filtered = filtered.filter(p => p.category === currentCategory);
+                    if (currentMood !== "All") filtered = filtered.filter(p => p.moods && p.moods.includes(currentMood));
+                    
+                    if (filtered.length === 0) {
+                        grid.style.display = "block"; grid.innerHTML = `<div class="empty-state" style="padding: 40px 0;"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><h3>No items found</h3><p>Try adjusting your search, mood, or category.</p></div>`;
+                    } else {
+                        grid.style.display = "grid"; filtered.forEach((product, idx) => grid.appendChild(Components.buildProductCard(product, idx)));
+                    }
+                };
+                updateFiltersUI();
+                return screen;
+            },
+
+            buildCart: () => {
+                const screen = document.createElement('div'); screen.className = 'screen';
+                const headerHTML = `<div class="header-section" style="margin-bottom: 16px;"><div><h2 class="text-title">Virtual Cart</h2><p class="text-subtitle" style="margin-top: 4px;">Review your mindful choices.</p></div></div>`;
+                if (appState.cart.length === 0) {
+                    screen.innerHTML = headerHTML + `<div class="empty-state"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg><h3>Your cart is empty</h3><p>Add items here to simulate a purchase<br>and watch your savings grow.</p><button class="btn-secondary" style="width: auto; padding: 12px 32px; margin-top: 8px;" onclick="ScreenManager.navigate('search')">Browse Catalog</button></div>`;
+                    return screen;
+                }
+                let cartItemsHTML = `<div class="cart-list">`;
+                appState.cart.forEach((id, index) => {
+                    const product = Database.getProductById(id);
+                    if (product) {
+                        const fmtPrice = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(product.price);
+                        cartItemsHTML += `<div class="cart-item stagger-entrance" style="animation-delay: ${(index % 10) * 0.08}s"><div class="cart-item-img" style="background: ${product.gradient};">${product.icon}</div><div class="cart-item-details"><span class="cart-item-name">${product.name}</span><span class="cart-item-price">${fmtPrice}</span></div><button class="cart-item-remove" onclick="CartEngine.removeFromCart(${index}); ScreenManager.navigate('cart');"><svg viewBox="0 0 24 24" style="width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div>`;
+                    }
+                });
+                cartItemsHTML += `</div>`;
+                const total = CartEngine.getCartTotal();
+                const fmtTotal = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(total);
+                screen.innerHTML = headerHTML + cartItemsHTML + `<div class="cart-total-bar"><span style="font-size: 16px; color: var(--color-text-muted); font-weight: 600;">Total Saved Value</span><span style="font-size: 24px; color: var(--color-text-main); font-weight: 700;">${fmtTotal}</span></div><button class="btn-primary" onclick="ScreenManager.navigate('checkout')">Complete Virtual Checkout</button>`;
+                return screen;
+            },
+
+            buildCheckout: () => {
+                const screen = document.createElement('div'); screen.className = 'screen';
+                const total = CartEngine.getCartTotal();
+                const fmtTotal = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(total);
+                screen.innerHTML = `<div class="checkout-timeline"><div class="checkout-icon" id="chk-icon">📦</div><h2 class="checkout-status" id="chk-status">Processing Order...</h2><p class="checkout-subtext" id="chk-subtext">Packing your virtual items.</p></div>`;
+                const timeline = [{ delay: 1500, icon: "🚚", status: "Dispatched", subtext: "On its way to your digital space." }, { delay: 3000, icon: "🏠", status: "Out for Delivery", subtext: "Arriving at your screen momentarily." }, { delay: 4500, end: true }];
+                timeline.forEach(step => {
+                    setTimeout(() => {
+                        if (!step.end) {
+                            screen.querySelector('#chk-icon').innerText = step.icon; screen.querySelector('#chk-status').innerText = step.status; screen.querySelector('#chk-subtext').innerText = step.subtext;
+                        } else {
+                            GamificationEngine.completeVirtualCheckout(total);
+                            screen.innerHTML = `<div class="celebration-card"><div style="font-size: 64px; margin-bottom: 16px;">🎉</div><h2 class="text-title" style="color: var(--color-muted-plum); margin-bottom: 8px;">Delivery Complete!</h2><p class="text-subtitle" style="margin-bottom: 24px; color: var(--color-text-main);">You experienced the thrill of checkout, made a mindful choice, and kept <strong>${fmtTotal}</strong> in your pocket!</p><div style="background: var(--component-bg); border-radius: 12px; padding: 12px; margin-bottom: 24px; display: inline-block;"><span style="font-weight: 700; color: var(--color-muted-plum);">+250 XP Reward</span></div><button class="btn-primary" onclick="ScreenManager.navigate('home')">Return to Dashboard</button></div>`;
+                        }
+                    }, step.delay);
+                });
+                return screen;
+            },
+
+            buildCollections: () => {
+                const screen = document.createElement('div'); screen.className = 'screen';
+                // NEW: Added a beautiful "+ Create Custom Dream" button to the header
+                const headerHTML = `
+                    <div class="header-section" style="margin-bottom: 16px; align-items: center;">
+                        <div><h2 class="text-title">Dreams</h2><p class="text-subtitle" style="margin-top: 4px;">Your saved inspiration.</p></div>
+                        <button class="btn-icon" style="background: var(--color-muted-plum); color: white;" onclick="ScreenManager.navigate('create_dream')">
+                            <svg viewBox="0 0 24 24" style="stroke: currentColor;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        </button>
+                    </div>
+                `;
+                
+                if (appState.wishlists.length === 0) {
+                    screen.innerHTML = headerHTML + `<div class="empty-state"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg><h3>No dreams yet</h3><p>Explore the catalog or create a custom item<br>to inspire your space.</p><button class="btn-secondary" style="width: auto; padding: 12px 32px; margin-top: 8px;" onclick="ScreenManager.navigate('search')">Explore Inspiration</button></div>`;
+                    return screen;
+                }
+                const grid = document.createElement('div'); grid.className = 'product-grid';
+                appState.wishlists.forEach((productId, idx) => {
+                    const product = Database.getProductById(productId);
+                    if (product) grid.appendChild(Components.buildProductCard(product, idx));
+                });
+                screen.innerHTML = headerHTML; screen.appendChild(grid);
+                return screen;
+            },
+            buildProductDetail: (productId) => {
+                const product = Database.getProductById(productId);
+                const screen = document.createElement('div'); screen.className = 'screen'; screen.style.paddingTop = '0'; screen.style.animation = 'slideInRight var(--transition-gentle)';
+                const fmtPrice = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(product.price);
+                
+                // Don't show MRP if it's equal to price (which is true for custom items by default)
+                const showMrp = product.mrp > product.price;
+                const fmtMrp = showMrp ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(product.mrp) : '';
+
+                screen.innerHTML = `
+                    <div class="top-app-bar" style="margin-left: -var(--spacing-lg); margin-right: -var(--spacing-lg);">
+                        <button class="btn-icon" id="back-btn"><svg viewBox="0 0 24 24"><path d="M19 12H5"></path><polyline points="12 19 5 12 12 5"></polyline></svg></button>
+                        ${product.id.startsWith('c_') ? `<span style="font-size: 10px; font-weight: 700; color: var(--color-muted-plum); text-transform: uppercase; letter-spacing: 1px; background: rgba(216, 191, 216, 0.2); padding: 4px 8px; border-radius: 8px;">Custom Dream</span>` : ''}
+                    </div>
+                    <div class="hero-image-container" style="background: ${product.gradient};"><div class="float-anim">${product.icon}</div></div>
+                    <div class="detail-brand">${product.brand}</div>
+                    <h1 class="detail-name">${product.name}</h1>
+                    <div class="detail-price-row"><span class="detail-price">${fmtPrice}</span><span class="detail-mrp">${fmtMrp}</span></div>
+                    <p class="detail-description">${product.description}</p>
+                    <div class="action-row"><button class="btn-primary" id="btn-add-cart"><svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line></svg>Add to Cart</button><button class="btn-secondary" id="btn-dream"></button></div>
+                `;
+                screen.querySelector('#back-btn').onclick = () => ScreenManager.navigate('collections');
+                const btnCart = screen.querySelector('#btn-add-cart');
+                btnCart.onclick = () => {
+                    CartEngine.addToCart(product.id);
+                    btnCart.innerHTML = `<svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><polyline points="20 6 9 17 4 12"></polyline></svg> Added`;
+                    btnCart.style.background = "var(--color-accent-blue)";
+                    setTimeout(() => ScreenManager.navigate('cart'), 800); 
+                };
+
+                const btnDream = screen.querySelector('#btn-dream');
+                const updateDreamUI = () => {
+                    const isSaved = appState.wishlists.includes(product.id);
+                    if (isSaved) {
+                        btnDream.innerHTML = `<svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: var(--color-muted-plum); stroke: var(--color-muted-plum); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg> Saved to Dreams`;
+                        btnDream.style.borderColor = "var(--color-muted-plum)";
+                    } else {
+                        btnDream.innerHTML = `<svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg> Add to Dreams`;
+                        btnDream.style.borderColor = "var(--color-soft-violet)";
+                    }
+                };
+                updateDreamUI();
+                btnDream.onclick = () => {
+                    const index = appState.wishlists.indexOf(product.id);
+                    if (index > -1) { appState.wishlists.splice(index, 1); } 
+                    else { appState.wishlists.push(product.id); GamificationEngine.addCuriosityXP(); NotificationEngine.show("Dream Saved", "Added to your inspiration board.", "🌌"); GoalEngine.evaluate('save_dream'); }
+                    StorageEngine.save(); updateDreamUI();
+                };
+                return screen;
+            },
+            
+            // --- NEW: Custom Dream Form Builder ---
+            buildCreateDream: () => {
+                const screen = document.createElement('div'); screen.className = 'screen'; screen.style.paddingTop = '0'; screen.style.animation = 'slideInRight var(--transition-gentle)';
+                
+                screen.innerHTML = `
+                    <div class="top-app-bar" style="margin-left: -var(--spacing-lg); margin-right: -var(--spacing-lg);">
+                        <button class="btn-icon" id="back-btn"><svg viewBox="0 0 24 24"><path d="M19 12H5"></path><polyline points="12 19 5 12 12 5"></polyline></svg></button>
+                    </div>
+                    <div class="header-section" style="margin-bottom: 24px;">
+                        <div><h2 class="text-title">Custom Dream</h2><p class="text-subtitle" style="margin-top: 4px;">Save an item you saw in real life.</p></div>
+                    </div>
+                    
+                    <div class="dashboard-card" style="flex-direction: column; align-items: flex-start;">
+                        <label style="font-size: 12px; color: var(--color-text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">Product Name</label>
+                        <input type="text" id="cd-name" class="input-field" placeholder="e.g. Vintage Record Player" autocomplete="off">
+                        
+                        <label style="font-size: 12px; color: var(--color-text-muted); margin-bottom: 8px; margin-top: 8px; text-transform: uppercase; letter-spacing: 1px;">Brand (Optional)</label>
+                        <input type="text" id="cd-brand" class="input-field" placeholder="e.g. Sony" autocomplete="off">
+                        
+                        <div style="display: flex; gap: 16px; width: 100%;">
+                            <div style="flex: 1;">
+                                <label style="font-size: 12px; color: var(--color-text-muted); margin-bottom: 8px; margin-top: 8px; text-transform: uppercase; letter-spacing: 1px; display:block;">Price (₹)</label>
+                                <input type="number" id="cd-price" class="input-field" placeholder="0" autocomplete="off">
+                            </div>
+                            <div style="flex: 0 0 80px;">
+                                <label style="font-size: 12px; color: var(--color-text-muted); margin-bottom: 8px; margin-top: 8px; text-transform: uppercase; letter-spacing: 1px; display:block;">Emoji</label>
+                                <input type="text" id="cd-icon" class="input-field" placeholder="✨" value="✨" maxlength="2" autocomplete="off" style="text-align: center;">
+                            </div>
+                        </div>
+
+                        <label style="font-size: 12px; color: var(--color-text-muted); margin-bottom: 8px; margin-top: 8px; text-transform: uppercase; letter-spacing: 1px;">Description</label>
+                        <textarea id="cd-desc" class="input-field" placeholder="Why do you want this?" style="resize: none; height: 100px; font-family: 'Nunito', sans-serif;"></textarea>
+                        
+                        <button id="save-custom-btn" class="btn-primary" style="margin-top: 16px;">Save to Dreams</button>
+                    </div>
+                `;
+
+                screen.querySelector('#back-btn').onclick = () => ScreenManager.navigate('collections');
+                
+                const saveBtn = screen.querySelector('#save-custom-btn');
+                saveBtn.onclick = () => {
+                    const name = screen.querySelector('#cd-name').value.trim();
+                    if (!name) return NotificationEngine.show("Missing Name", "Please give your dream a name.", "⚠️");
+                    
+                    const priceVal = parseInt(screen.querySelector('#cd-price').value) || 0;
+                    
+                    // Generate a beautiful random gradient for their custom item
+                    const gradients = [
+                        "linear-gradient(135deg, #FFB7C5, #FFFDD0)", // Warm
+                        "linear-gradient(135deg, #AEC6CF, #E6E6FA)", // Cool
+                        "linear-gradient(135deg, #D8BFD8, #FFD1DC)", // Pink
+                        "linear-gradient(135deg, #E6E6FA, #F5F5F7)"  // Minimal
+                    ];
+                    const randGrad = gradients[Math.floor(Math.random() * gradients.length)];
+
+                    const newProduct = {
+                        id: `c_${Date.now()}`, // Unique ID prefixed with c_
+                        brand: screen.querySelector('#cd-brand').value.trim() || "Custom",
+                        name: name,
+                        category: "Custom",
+                        moods: ["Creative"], // Default mood so it shows in search
+                        price: priceVal,
+                        mrp: priceVal,
+                        gradient: randGrad,
+                        icon: screen.querySelector('#cd-icon').value.trim() || "✨",
+                        description: screen.querySelector('#cd-desc').value.trim() || "A custom dream created by you."
+                    };
+
+                    appState.customProducts.push(newProduct);
+                    appState.wishlists.unshift(newProduct.id); // Add directly to top of wishlist
+                    
+                    GoalEngine.evaluate('create_custom');
+                    AchievementsEngine.evaluate(); // Will trigger 'Architect' achievement!
+                    StorageEngine.save();
+                    
+                    NotificationEngine.show("Dream Saved", "Custom item added to your platform.", "🎨");
+                    ScreenManager.navigate('collections');
+                };
+
+                return screen;
+            },
+
+            buildProfile: () => {
+                const screen = document.createElement('div'); screen.className = 'screen';
+                const fmtSavings = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(appState.profile.moneySaved);
+                const ordersSimulated = appState.profile.ordersCompleted || 0;
+                const dreamsCount = appState.wishlists.length;
+                const currentXP = appState.profile.xp;
+                const levelBoundary = appState.profile.level * 100; 
+                const prevBoundary = (appState.profile.level - 1) * 100;
+                const progressPercentage = Math.min(100, Math.max(0, ((currentXP - prevBoundary) / 100) * 100));
+                const userInitial = appState.profile.name.charAt(0).toUpperCase();
+
+                let achievementsHTML = `<div class="achievements-grid">`;
+                AchievementsEngine.list.forEach(ach => {
+                    const isUnlocked = appState.achievements.includes(ach.id);
+                    achievementsHTML += `<div class="achievement-badge ${isUnlocked ? '' : 'locked'}"><div class="achievement-icon">${ach.icon}</div><span class="achievement-title">${ach.title}</span><span class="achievement-desc">${ach.desc}</span></div>`;
+                });
+                achievementsHTML += `</div>`;
+
+                screen.innerHTML = `
+                    <div class="header-section" style="margin-bottom: 24px;"><div><h2 class="text-title">Dashboard</h2><p class="text-subtitle" style="margin-top: 4px;">Your digital footprint.</p></div><button class="btn-icon" id="settings-btn" style="box-shadow: none; border: 1px solid var(--color-soft-gray);"><svg viewBox="0 0 24 24" style="stroke: var(--color-text-muted);"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button></div>
+                    <div class="profile-hero"><div class="profile-avatar">${userInitial}</div><div class="profile-info"><h3 style="font-size: 20px; font-weight: 700; color: var(--color-text-main); line-height: 1.2;">${appState.profile.name}</h3><span style="font-size: 14px; color: var(--color-muted-plum); font-weight: 700;">Level ${appState.profile.level} Explorer</span><div class="progress-container"><div class="progress-fill" style="width: ${progressPercentage}%;"></div></div><span style="font-size: 10px; color: var(--color-text-muted); float: right; margin-top: 4px;">${currentXP} / ${levelBoundary} XP</span></div></div>
+                    <div class="stats-grid">
+                        <div class="stat-box"><div class="stat-box-icon"><svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div><span class="stat-box-label">Money Kept</span><span class="stat-box-value" style="color: var(--color-muted-plum);">${fmtSavings}</span></div>
+                        <div class="stat-box"><div class="stat-box-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg></div><span class="stat-box-label">Orders Simulated</span><span class="stat-box-value">${ordersSimulated}</span></div>
+                        <div class="stat-box"><div class="stat-box-icon"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></div><span class="stat-box-label">Curated Dreams</span><span class="stat-box-value">${dreamsCount} Items</span></div>
+                        <div class="stat-box"><div class="stat-box-icon" style="background: rgba(255,183,197, 0.2); color: var(--color-muted-plum);"><svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg></div><span class="stat-box-label">Longest Streak</span><span class="stat-box-value">${appState.streak.current} Days</span></div>
+                    </div>
+                    <span class="filter-section-title" style="margin-top: 16px;">Milestones & Achievements</span>
+                    ${achievementsHTML}
+                `;
+                screen.querySelector('#settings-btn').onclick = () => Components.buildSettingsModal();
+                return screen;
+            }
+        };
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log(`iSS Initializing (v${CONFIG.version})...`);
+            StorageEngine.load();
+            ThemeEngine.apply(appState.preferences.theme);
+            InteractionEngine.init(); 
+            NotificationEngine.init(); 
+            GoalEngine.init(); 
+            GamificationEngine.processDailyVisit();
+            document.getElementById('app-container').appendChild(Components.buildBottomNav());
+            ScreenManager.navigate('home');
+        });
+    </script>
+
+</body>
+</html>
