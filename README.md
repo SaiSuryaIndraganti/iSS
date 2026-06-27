@@ -16,7 +16,7 @@ iSS provides that exact emotional loop in a safe, calming environment. It stands
 ## How users can get started with the project?
 This project is currently in its fully functional HTML Prototype phase (v0.22.0). 
 1. Clone or download this repository.
-2. Open the `iSS.html` file in any modern mobile or desktop web browser.
+2. Open the `index.html` file in any modern mobile or desktop web browser.
 3. No external databases, servers, or installations are required. All state management, gamification, and custom dreams run locally and persistently on your device via the browser's Storage Engine.
 
 ## Where users can get help with your project?
